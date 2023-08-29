@@ -74,13 +74,11 @@ def general_cleanup(repository: Client) -> bool:
                     repository._git_repo.git.branch("-D", branch)  # pylint: disable=W0212
                 except GitCommandError:
                     logging.info("Branch %s not found locally", branch)
-                    result = False
             try:
                 repository._git_repo.git.push(  # pylint: disable=W0212
                     "origin", "--delete", branch
                 )
             except GitCommandError:
                 logging.info("Branch %s not found in remote", branch)
-                result = False
 
     return result
