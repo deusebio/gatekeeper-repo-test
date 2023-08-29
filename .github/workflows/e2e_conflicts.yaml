@@ -43,7 +43,7 @@ jobs:
 
       - name: Import Documentation
         id: import
-        uses: canonical/upload-charm-docs@wip-e2e-tests
+        uses: canonical/upload-charm-docs@main
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
@@ -83,7 +83,7 @@ jobs:
 
       - name: Release Pipeline Documentation
         id: release-import
-        uses: canonical/upload-charm-docs@wip-e2e-tests
+        uses: canonical/upload-charm-docs@main
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
@@ -105,7 +105,7 @@ jobs:
       - name: Raise Conflict in PR
         id: conflict
         continue-on-error: true
-        uses: canonical/upload-charm-docs@wip-e2e-tests
+        uses: canonical/upload-charm-docs@main
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
@@ -127,7 +127,7 @@ jobs:
 
       - name: Run Gatekeeper
         id: feature-check
-        uses: canonical/upload-charm-docs@wip-e2e-tests
+        uses: canonical/upload-charm-docs@main
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
@@ -149,7 +149,7 @@ jobs:
 
       - name: Release Feature
         id: release-feature
-        uses: canonical/upload-charm-docs@wip-e2e-tests
+        uses: canonical/upload-charm-docs@main
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
