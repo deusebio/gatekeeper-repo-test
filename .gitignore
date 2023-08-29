@@ -1,0 +1,9 @@
+venv/
+build/
+*.charm
+.tox/
+.idea
+.vscode/
+.coverage
+__pycache__/
+*.py[cod]

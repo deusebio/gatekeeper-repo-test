@@ -1,0 +1,11 @@
+# Copyright 2022 Canonical Ltd.
+# See LICENSE file for licensing details.
+name: repo-test
+display-name: Gatekeeper Test Repository
+description: |
+  This is a dummy charm to be used for Gatekeeper End-to-End tests
+docs: https://discourse.charmhub.io/t/charmed-mongodb-k8s-documentation/9731
+summary: Dummy charm
+series:
+  - jammy
+

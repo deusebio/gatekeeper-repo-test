@@ -1,0 +1,31 @@
+# Copyright 2022 Canonical Ltd.
+# See LICENSE file for licensing details.
+name: Tests
+
+on:
+  workflow_call:
+    inputs:
+      docs_dry_run:
+        description: 'Whether we want to push changes to discourse or not'
+        required: true
+        type: string
+    secrets:
+      DISCOURSE_API_USERNAME:
+        required: true
+      DISCOURSE_API_KEY:
+        required: true
+
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install tox
+        # TODO: Consider replacing with custom image on self-hosted runner OR pinning version
+        run: python3 -m pip install tox
+      - name: Run linters
+        run: tox run -e lint
