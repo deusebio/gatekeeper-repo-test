@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Publish documentation
-        uses: deusebio/discourse-gatekeeper@main
+        uses: canonical/discourse-gatekeeper@main
 
         id: publishDocumentation
         with:
