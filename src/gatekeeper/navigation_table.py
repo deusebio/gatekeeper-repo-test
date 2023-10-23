@@ -7,9 +7,9 @@ import re
 import string
 import typing
 
-from src import constants, types_
-from src.discourse import Discourse
-from src.exceptions import (
+from . import constants, types_
+from .discourse import Discourse
+from .exceptions import (
     DiscourseError,
     NavigationTableParseError,
     PagePermissionError,

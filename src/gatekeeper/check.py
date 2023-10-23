@@ -10,10 +10,10 @@ from typing import NamedTuple, TypeGuard
 
 import requests
 
-from src import constants, content
-from src.constants import DOCUMENTATION_TAG
-from src.repository import Client
-from src.types_ import (
+from . import constants, content
+from .constants import DOCUMENTATION_TAG
+from .repository import Client
+from .types_ import (
     AnyAction,
     IndexContentsListItem,
     UpdateAction,
