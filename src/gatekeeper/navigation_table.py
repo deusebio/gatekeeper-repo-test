@@ -7,9 +7,14 @@ import re
 import string
 import typing
 
-from . import types_
-from .discourse import Discourse
-from .exceptions import DiscourseError, NavigationTableParseError, PagePermissionError, ServerError
+from src import constants, types_
+from src.discourse import Discourse
+from src.exceptions import (
+    DiscourseError,
+    NavigationTableParseError,
+    PagePermissionError,
+    ServerError,
+)
 
 _WHITESPACE = r"\s*"
 _TABLE_HEADER_REGEX = (
@@ -23,10 +28,11 @@ _TABLE_PATTERN = re.compile(rf"[\s\S]*{_TABLE_HEADER_REGEX}[\s\S]*\|?", re.IGNOR
 _FILLER_ROW_REGEX_COLUMN = rf"{_WHITESPACE}-+{_WHITESPACE}\|"
 _FILLER_ROW_PATTERN = re.compile(rf"{_WHITESPACE}\|{_FILLER_ROW_REGEX_COLUMN * 3}{_WHITESPACE}")
 _LEVEL_REGEX = rf"{_WHITESPACE}(\d+)?{_WHITESPACE}"
-_PATH_REGEX = rf"{_WHITESPACE}([\w-]+){_WHITESPACE}"
+_PATH_REGEX = rf"{_WHITESPACE}([${constants.PATH_CHARS}]+){_WHITESPACE}"
 _PUNCTUATION = string.punctuation.replace("/", "\\/")
 _NAVLINK_TITLE_REGEX = rf"[\w\- {_PUNCTUATION}]+?"
-_NAVLINK_LINK_REGEX = r"[\w\/-]*"
+# Link characters according to https://www.rfc-editor.org/rfc/rfc3986#section-2
+_NAVLINK_LINK_REGEX = r"[\w\/._~:/?#\[\]@!$&'*+,;-]*"
 _NAVLINK_REGEX = (
     rf"{_WHITESPACE}\[{_WHITESPACE}({_NAVLINK_TITLE_REGEX}){_WHITESPACE}\]{_WHITESPACE}"
     rf"\({_WHITESPACE}({_NAVLINK_LINK_REGEX}){_WHITESPACE}\){_WHITESPACE}"
@@ -101,10 +107,10 @@ def _check_table_row_write_permission(
         PagePermissionError: The user does not have write permission for the linked topic.
         ServerError: The interaction with discourse failed.
     """
-    if table_row.navlink.link is None:
+    if table_row.is_group or table_row.is_external(server_hostname=discourse.host):
         return table_row
 
-    url = table_row.navlink.link
+    url = typing.cast(str, table_row.navlink.link)
     try:
         if discourse.check_topic_write_permission(url=url):
             return table_row

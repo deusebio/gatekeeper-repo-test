@@ -8,10 +8,20 @@ from collections.abc import Iterable, Iterator
 from itertools import chain, tee
 from typing import NamedTuple, TypeGuard
 
-from . import constants, content
-from .constants import DOCUMENTATION_TAG
-from .repository import Client
-from .types_ import AnyAction, UpdateAction, UserInputs
+import requests
+
+from src import constants, content
+from src.constants import DOCUMENTATION_TAG
+from src.repository import Client
+from src.types_ import (
+    AnyAction,
+    IndexContentsListItem,
+    UpdateAction,
+    UpdateExternalRefAction,
+    UpdateGroupAction,
+    UpdatePageAction,
+    UserInputs,
+)
 
 
 class Problem(NamedTuple):
@@ -55,7 +65,7 @@ def get_path_with_diffs(actions: Iterable[UpdateAction]) -> PathsWithDiff:
     actions_with_changes = (
         action
         for action in actions
-        if action.content_change is not None
+        if isinstance(action, UpdatePageAction)
         and action.content_change.base is not None
         and action.content_change.local != action.content_change.server
     )
@@ -86,7 +96,7 @@ def _is_update_action(action: AnyAction) -> TypeGuard[UpdateAction]:
     Returns:
         Whether the action is an UpdateAction.
     """
-    return isinstance(action, UpdateAction)
+    return isinstance(action, (UpdatePageAction, UpdateGroupAction, UpdateExternalRefAction))
 
 
 def _update_action_problem(action: UpdateAction) -> Problem | None:
@@ -98,7 +108,7 @@ def _update_action_problem(action: UpdateAction) -> Problem | None:
     Returns:
         None if there is no problem or the problem if there is an issue with the action.
     """
-    if action.content_change is None:
+    if not isinstance(action, UpdatePageAction):
         return None
 
     if (
@@ -212,3 +222,70 @@ def conflicts(
         problem.description,
     )
     yield problem
+
+
+def _external_ref_list_item_problem(list_item: IndexContentsListItem) -> Problem | None:
+    """Get any problem with a list item with an external reference.
+
+    Args:
+        list_item: The contents list item to check.
+
+    Returns:
+        None if there is no problem or the problem if there is an issue with the list item.
+    """
+    try:
+        response = requests.head(list_item.reference_value, timeout=60)
+
+        if response.status_code // 100 == 2:
+            return None
+
+        problem = Problem(
+            path=list_item.reference_value,
+            description=(
+                "an item on the contents index points to an external reference where a HEAD "
+                "request does not return a 2XX response - probably a broken link, response code: "
+                f"{response.status_code}"
+            ),
+        )
+    except requests.ConnectionError as exc:
+        problem = Problem(
+            path=list_item.reference_value,
+            description=(
+                "an item on the contents index points to an external reference where a HEAD "
+                f"request was unable to connect, exception: \n{exc}"
+            ),
+        )
+
+    logging.error(
+        (
+            "there is a problem with a row on the contents index\n"
+            "path: %s\n"
+            "problem: %s\n"
+            "list item: %s"
+        ),
+        problem.path,
+        problem.description,
+        list_item,
+    )
+    return problem
+
+
+def external_refs(index_contents: Iterable[IndexContentsListItem]) -> Iterator[Problem]:
+    """Check whether external references are valid.
+
+    This check sends a HEAD requests and checks for a 2XX response after any redirects.
+
+    Args:
+        index_contents: The contents list items to check.
+
+    Yields:
+        A problem for each list item with an invalid external reference.
+    """
+    external_ref_index_contents = (
+        list_item for list_item in index_contents if list_item.is_external
+    )
+
+    yield from filter(
+        None,
+        (_external_ref_list_item_problem(list_item) for list_item in external_ref_index_contents),
+    )
