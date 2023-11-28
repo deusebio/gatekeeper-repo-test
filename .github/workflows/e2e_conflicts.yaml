@@ -46,7 +46,7 @@ jobs:
 
       - name: Import Documentation
         id: import
-        uses: canonical/discourse-gatekeeper@main
+        uses: canonical/discourse-gatekeeper@fix-whitespace-buildup
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
@@ -86,7 +86,7 @@ jobs:
 
       - name: Release Pipeline Documentation
         id: release-import
-        uses: canonical/discourse-gatekeeper@main
+        uses: canonical/discourse-gatekeeper@fix-whitespace-buildup
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
@@ -108,7 +108,7 @@ jobs:
       - name: Raise Conflict in PR
         id: conflict
         continue-on-error: true
-        uses: canonical/discourse-gatekeeper@main
+        uses: canonical/discourse-gatekeeper@fix-whitespace-buildup
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
@@ -130,7 +130,7 @@ jobs:
 
       - name: Run Gatekeeper
         id: feature-check
-        uses: canonical/discourse-gatekeeper@main
+        uses: canonical/discourse-gatekeeper@fix-whitespace-buildup
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
@@ -152,7 +152,7 @@ jobs:
 
       - name: Release Feature
         id: release-feature
-        uses: canonical/discourse-gatekeeper@main
+        uses: canonical/discourse-gatekeeper@fix-whitespace-buildup
         with:
           discourse_host: discourse.charmhub.io
           discourse_api_username: ${{ secrets.DISCOURSE_API_USERNAME }}
